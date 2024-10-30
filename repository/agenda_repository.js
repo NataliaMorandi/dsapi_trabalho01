@@ -3,13 +3,40 @@ let idGeradorAgenda = 1;
 
 // get lista
 function listarAgenda() {
-    return listaAgenda;
+    // map cria uma nova lista sem mexer na original e com todos parametros da antiga + parametros novos
+    return listaAgenda.map (consulta => { // => usado em arrow function e em outras funcoes para definir de maneira rapida e simplificada, 
+        // principalmente em callbacks ou metodos como map filter e forEach
+        const paciente = listaPaciente.find(paciente => paciente.id === consulta.idPaciente);
+        let pacienteNome;
+        if (paciente) {
+            pacienteNome = paciente.nome;
+        } else {
+            pacienteNome = "Paciente não encontrado";
+        }
+
+        return {
+            id: consulta.id,
+            data: consulta.data,
+            pacienteNome: pacienteNome
+        };
+    });
 }
 
 // post
+// ver se o horario está ocupado e retornar msg se estiver
+
 function inserirAgenda(agenda) {
     if(!agenda || !agenda.data || !agenda.paciente) {
         throw {id: 400, msg: "Agenda sem dados corretos"};
+    }
+
+    // se some encontrar item correspondente, retorna true
+    const dataOcupada = listaAgenda.some(
+        consulta => consulta.data === agenda.data && consulta.paciente === agenda.paciente
+    );
+    if (dataOcupada) {
+        // codigo  409 Conflict indica conflito
+        throw { id: 409, msg: "Data ocupada" };
     }
     agenda.idAgenda = idGeradorAgenda++;
     listaAgenda.push(agenda);
@@ -17,15 +44,31 @@ function inserirAgenda(agenda) {
 }
 
 // get id
+// tem que buscar o paciente junto com o compromisso
 function buscarPorIdAgenda(idAgenda) {
-    return (listaAgenda.find(
-        function(agenda) {
-            return (agenda.idAgenda == idAgenda)
-        }
-    ));
+    const agenda = listaAgenda.find(
+        agenda => agenda.idAgenda === idAgenda);
+    if (!agenda) {
+        return { id: 404, msg: "Agendamento não encontrado" };
+    }
+    const paciente = listaPaciente.find (paciente => paciente.nome === agenda.paciente);
+
+    let pacienteNome;
+    if (paciente) {
+        pacienteNome = paciente.nome;
+    } else {
+        pacienteNome = "Paciente não encontrado";
+    }
+
+    return {
+        id: agenda.id,
+        data: agenda.data,
+        pacienteNome: pacienteNome
+    };
 }
 
 // put
+// tem que atualizar o paciente junto
 function atualizarAgenda(idAgenda, agenda) {
     if(!agenda || !agenda.data || !agenda.paciente) {
         return; }
@@ -39,6 +82,7 @@ function atualizarAgenda(idAgenda, agenda) {
 }
 
 // delete
+// deleta a consulta e limpa o campo de consulta do paciente tambem
 function deletarAgenda(idAgenda) {
     let indiceAgenda = listaAgenda.findIndex(function(agenda) {
         return (agenda.idAgenda == idAgenda);
