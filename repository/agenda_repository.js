@@ -26,7 +26,7 @@ function listarAgenda() {
 // ver se o horario está ocupado e retornar msg se estiver
 
 function inserirAgenda(agenda) {
-    if(!agenda || !agenda.data || !agenda.paciente || !agenda.paciente.nome) {
+    if(!agenda || !agenda.data || !agenda.paciente || !agenda.pacienteNome) {
         throw {id: 400, msg: "Agenda sem dados corretos"};
     }
 

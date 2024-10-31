@@ -2,50 +2,61 @@ let listaPaciente = [];
 let idGeradorPaciente = 1;
 
 // get lista
-function listarPaciente(paciente) {
+function listarPaciente() {
     return listaPaciente;
 }
 
 // post
 function inserirPaciente(paciente) {
-    if(!paciente || !paciente.nome || !paciente.consulta) {
+    if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
         throw {id: 400, msg: "Paciente sem dados corretos"};
     }
-    paciente.idPaciente = idGeradorPaciente++;
+    paciente.id = idGeradorPaciente++;
     listaPaciente.push(paciente);
     return paciente;
 }
 
 // get id
-function buscarPorIdPaciente(idPaciente) {
-    return (listaPaciente.find(
-        function(paciente) {
-            return (paciente.idPaciente == idPaciente)
-        }
-    ));
+function buscarPorIdPaciente(paciente) {
+    const pacienteEncontrado = listaPaciente.find(p => p.id === paciente.id);
+    if (!pacienteEncontrado) {
+        return { id: 404, msg: "Paciente não encontrado" };
+    }
+    return pacienteEncontrado;
 }
 
 // put
-function atualizarPaciente(idPaciente, paciente) {
-    if(!paciente || !paciente.nome || !paciente.consulta) {
+function atualizarPaciente(id, paciente) {
+    if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
         return; }
-    let indicePaciente = listaPaciente.findIndex(function(paciente) {
-        return (paciente.idPaciente == idPaciente); })
+    let indicePaciente = listaPaciente.findIndex(p => p.id === id);
 
-    if (indicePaciente == -1) return;
-    paciente.idPaciente = idPaciente;
+    if (indicePaciente === -1) {
+        return { id: 404, msg: "Paciente não encontrado" };
+    }
+    paciente.id = id;
     listaPaciente[indicePaciente] = paciente;
     return paciente;
 }
 
 // delete
-function deletarPaciente(idPaciente) {
-    let indicePaciente = listaPaciente.findIndex(function(paciente) {
-        return (paciente.idPaciente == idPaciente);
-    })
-    if(indicePaciente == -1) return;
-    return (listaPaciente.splice(indicePaciente, 1))[0];
+function deletarPaciente(id) {
+    let indicePaciente = listaPaciente.findIndex(p => p.id === id);
+
+    if (indicePaciente === -1) {
+        return { id: 404, msg: "Paciente não encontrado" };
+    }
+
+    const pacienteRemovido = listaPaciente.splice(indicePaciente, 1)[0];
+
+    const pacienteNome = pacienteRemovido.nome;
+
+    //listaAgenda = listaAgenda.filter(consulta => consulta.paciente !== pacienteNome);
+
+    //return { id: 200, msg: "Paciente e suas consultas foram removidos" };
 }
+
+
 
 // funcionalidade especifica 
 
