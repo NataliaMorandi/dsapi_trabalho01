@@ -26,8 +26,16 @@ function listarAgenda() {
 // ver se o horario está ocupado e retornar msg se estiver
 
 function inserirAgenda(agenda) {
-    if(!agenda || !agenda.data || !agenda.paciente) {
+    if(!agenda || !agenda.data || !agenda.paciente || !agenda.paciente.nome) {
         throw {id: 400, msg: "Agenda sem dados corretos"};
+    }
+
+    if (!agenda.paciente.nome) {
+        try {
+            inserirPaciente(agenda.paciente);
+        } catch (error) {
+            return error;
+        }
     }
 
     // se some encontrar item correspondente, retorna true
@@ -69,26 +77,52 @@ function buscarPorIdAgenda(idAgenda) {
 
 // put
 // tem que atualizar o paciente junto
-function atualizarAgenda(idAgenda, agenda) {
-    if(!agenda || !agenda.data || !agenda.paciente) {
-        return; }
-    let indiceAgenda = listaAgenda.findIndex(function(agenda) {
-        return (agenda.idAgenda == idAgenda); })
+function atualizarAgenda(idAgenda, novaAgenda, idPaciente, novoPaciente) {
+    if(!novaAgenda || !novaAgenda.data || !novaAgenda.paciente) {
+        throw {id: 400, msg: "Agenda sem dados corretos"}; }
 
-    if (indiceAgenda == -1) return;
-    agenda.idAgenda = idAgenda;
-    listaAgenda[indiceAgenda] = agenda;
-    return agenda;
+    let indiceAgenda = listaAgenda.findIndex(agenda => agenda.idAgenda == idAgenda);
+
+    if (indiceAgenda == -1) {
+        return { id: 404, msg: "Agendamento não encontrado" };
+    }
+
+    novaAgenda.idAgenda = idAgenda;
+    listaAgenda[indiceAgenda] = novaAgenda;
+
+    let indicePaciente = listaPaciente.findIndex(paciente => paciente.idPaciente == idPaciente);
+
+    if (indicePaciente == -1) {
+        return { id: 404, msg: "Paciente não encontrado" }; }
+
+    novoPaciente.idPaciente = idPaciente;
+    listaPaciente[indicePaciente] = novoPaciente;
+    return novoPaciente;
 }
+
 
 // delete
 // deleta a consulta e limpa o campo de consulta do paciente tambem
-function deletarAgenda(idAgenda) {
-    let indiceAgenda = listaAgenda.findIndex(function(agenda) {
-        return (agenda.idAgenda == idAgenda);
-    })
-    if(indiceAgenda == -1) return;
-    return (listaAgenda.splice(indiceAgenda, 1))[0];
+function deletarAgenda(idAgenda, idPaciente) {
+    let indiceAgenda = listaAgenda.findIndex(agenda => agenda.idAgenda == idAgenda);
+    
+    if (indiceAgenda == -1) {
+        return { id: 404, msg: "Agendamento não encontrado" }; }
+
+    const agendaRemovida = listaAgenda.splice(indiceAgenda, 1)[0];
+
+    let indicePaciente = listaPaciente.findIndex(paciente => paciente.idPaciente == idPaciente);
+
+    if (indicePaciente == -1) {
+        return { id: 404, msg: "Paciente não encontrado" }; }
+
+    paciente.consulta_marcada = false;
+
+    return {
+        agendaRemovida: agendaRemovida,
+        pacienteAtualizado: paciente
+    };
+
 }
 
 // funcionalidade especifica 

@@ -8,7 +8,7 @@ function listarPaciente(paciente) {
 
 // post
 function inserirPaciente(paciente) {
-    if(!paciente || !paciente.nome || !paciente.consulta_marcada) {
+    if(!paciente || !paciente.nome || !paciente.consulta) {
         throw {id: 400, msg: "Paciente sem dados corretos"};
     }
     paciente.idPaciente = idGeradorPaciente++;
@@ -27,7 +27,7 @@ function buscarPorIdPaciente(idPaciente) {
 
 // put
 function atualizarPaciente(idPaciente, paciente) {
-    if(!paciente || !paciente.nome || !paciente.consulta_marcada) {
+    if(!paciente || !paciente.nome || !paciente.consulta) {
         return; }
     let indicePaciente = listaPaciente.findIndex(function(paciente) {
         return (paciente.idPaciente == idPaciente); })
