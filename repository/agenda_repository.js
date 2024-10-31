@@ -3,82 +3,43 @@ let idGeradorAgenda = 1;
 
 // get lista
 function listarAgenda() {
-    // map cria uma nova lista sem mexer na original e com todos parametros da antiga + parametros novos
-    return listaAgenda.map (consulta => { // => usado em arrow function e em outras funcoes para definir de maneira rapida e simplificada, 
-        // principalmente em callbacks ou metodos como map filter e forEach
-        const paciente = listaPaciente.find(paciente => paciente.id === consulta.idPaciente);
-        let pacienteNome;
-        if (paciente) {
-            pacienteNome = paciente.nome;
-        } else {
-            pacienteNome = "Paciente não encontrado";
-        }
-
-        return {
-            id: consulta.id,
-            data: consulta.data,
-            pacienteNome: pacienteNome
-        };
-    });
+    return listaAgenda; 
 }
 
 // post
 // ver se o horario está ocupado e retornar msg se estiver
-
 function inserirAgenda(agenda) {
-    if(!agenda || !agenda.data || !agenda.paciente || !agenda.pacienteNome) {
+    if(!agenda || !agenda.id || !agenda.data || !agenda.pacienteNome) {
         throw {id: 400, msg: "Agenda sem dados corretos"};
-    }
-
-    if (!agenda.paciente.nome) {
-        try {
-            inserirPaciente(agenda.paciente);
-        } catch (error) {
-            return error;
-        }
     }
 
     // se some encontrar item correspondente, retorna true
     const dataOcupada = listaAgenda.some(
-        consulta => consulta.data === agenda.data && consulta.paciente === agenda.paciente
+        consulta => consulta.data === agenda.data
     );
+
     if (dataOcupada) {
         // codigo  409 Conflict indica conflito
         throw { id: 409, msg: "Data ocupada" };
     }
-    agenda.idAgenda = idGeradorAgenda++;
+    agenda.id = idGeradorAgenda++;
     listaAgenda.push(agenda);
     return agenda;
 }
 
 // get id
-// tem que buscar o paciente junto com o compromisso
-function buscarPorIdAgenda(idAgenda) {
-    const agenda = listaAgenda.find(
-        agenda => agenda.idAgenda === idAgenda);
-    if (!agenda) {
+function buscarPorIdAgenda(id) {
+    const agendaEncontrada = listaAgenda.find(a => a.id === id);
+    if (!agendaEncontrada) {
         return { id: 404, msg: "Agendamento não encontrado" };
     }
-    const paciente = listaPaciente.find (paciente => paciente.nome === agenda.paciente);
 
-    let pacienteNome;
-    if (paciente) {
-        pacienteNome = paciente.nome;
-    } else {
-        pacienteNome = "Paciente não encontrado";
-    }
-
-    return {
-        id: agenda.id,
-        data: agenda.data,
-        pacienteNome: pacienteNome
-    };
+    return agendaEncontrada;
 }
 
 // put
-// tem que atualizar o paciente junto
-function atualizarAgenda(idAgenda, novaAgenda, idPaciente, novoPaciente) {
-    if(!novaAgenda || !novaAgenda.data || !novaAgenda.paciente) {
+function atualizarAgenda(id, novaAgenda) {
+    if(!novaAgenda || !novaAgenda.id || !novaAgenda.data || !novaAgenda.pacienteNome) {
         throw {id: 400, msg: "Agenda sem dados corretos"}; }
 
     let indiceAgenda = listaAgenda.findIndex(agenda => agenda.idAgenda == idAgenda);

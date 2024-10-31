@@ -22,6 +22,7 @@ function buscarPorIdPaciente(paciente) {
     if (!pacienteEncontrado) {
         return { id: 404, msg: "Paciente não encontrado" };
     }
+    
     return pacienteEncontrado;
 }
 
