@@ -1,17 +1,21 @@
-let listaAgenda = [];
-let idGeradorAgenda = 1;
+// no service vão as minhas regras de negocio
+// nao pode ter overbooking
+// nao pode criar consulta em agenda sem ter um paciente
 
-// get lista
+const agendaRepository = require('../repository/agenda_repository')
+const pacienteRepository = require('../repository/paciente_repository')
+
 function listarAgenda() {
-    // map cria uma nova lista sem mexer na original e com todos parametros da antiga + parametros novos
-    return listaAgenda.map (consulta => { // => usado em arrow function e em outras funcoes para definir de maneira rapida e simplificada, 
-        // principalmente em callbacks ou metodos como map filter e forEach
-        const paciente = listaPaciente.find(paciente => paciente.id === consulta.idPaciente);
+    const listaAgenda = agendaRepository.listarAgenda();
+    const listaPaciente = pacienteRepository.listarPaciente();
+    
+    return listaAgenda.map (consulta => {
+        const paciente = listaPaciente.find(p => p.id === consulta.paciente);
         let pacienteNome;
         if (paciente) {
             pacienteNome = paciente.nome;
         } else {
-            pacienteNome = "Paciente não encontrado";
+            throw { id: 404, msg: "Paciente não encontrado" };
         }
 
         return {
@@ -22,121 +26,81 @@ function listarAgenda() {
     });
 }
 
-// post
-// ver se o horario está ocupado e retornar msg se estiver
-
 function inserirAgenda(agenda) {
-    if(!agenda || !agenda.data || !agenda.paciente || !agenda.pacienteNome) {
-        throw {id: 400, msg: "Agenda sem dados corretos"};
+    if(!agenda || !agenda.id || !agenda.data || !agenda.pacienteNome) {
+        throw { id: 400, msg: "Agenda sem dados corretos"}
     }
-
-    if (!agenda.paciente.nome) {
-        try {
-            inserirPaciente(agenda.paciente);
-        } catch (error) {
-            return error;
-        }
-    }
-
-    // se some encontrar item correspondente, retorna true
+    
+    // se eu vou inserir agenda, deveria adicionar aqui a minha regra de negocio sobre confirmar se data está disponivel
     const dataOcupada = listaAgenda.some(
-        consulta => consulta.data === agenda.data && consulta.paciente === agenda.paciente
+        consulta => consulta.data === agenda.data 
     );
+
     if (dataOcupada) {
         // codigo  409 Conflict indica conflito
         throw { id: 409, msg: "Data ocupada" };
     }
-    agenda.idAgenda = idGeradorAgenda++;
-    listaAgenda.push(agenda);
-    return agenda;
-}
 
-// get id
-// tem que buscar o paciente junto com o compromisso
-function buscarPorIdAgenda(idAgenda) {
-    const agenda = listaAgenda.find(
-        agenda => agenda.idAgenda === idAgenda);
-    if (!agenda) {
-        return { id: 404, msg: "Agendamento não encontrado" };
-    }
-    const paciente = listaPaciente.find (paciente => paciente.nome === agenda.paciente);
-
-    let pacienteNome;
+    const paciente = listaPaciente.find(p => p.nome === agenda.pacienteNome);
     if (paciente) {
-        pacienteNome = paciente.nome;
+        if (typeof paciente.consultaMarcada !== 'boolean') {
+            throw { id: 400, msg: "Dados do paciente inválidos: consultaMarcada deve ser booleano" };
+        }
+        paciente.consultaMarcada = true;
     } else {
-        pacienteNome = "Paciente não encontrado";
+        throw { id: 404, msg: "Paciente não encontrado" };
     }
 
-    return {
-        id: agenda.id,
-        data: agenda.data,
-        pacienteNome: pacienteNome
-    };
+    return agendaRepository.inserirAgenda(agenda);
 }
 
-// put
-// tem que atualizar o paciente junto
-function atualizarAgenda(idAgenda, novaAgenda, idPaciente, novoPaciente) {
-    if(!novaAgenda || !novaAgenda.data || !novaAgenda.paciente) {
-        throw {id: 400, msg: "Agenda sem dados corretos"}; }
 
-    let indiceAgenda = listaAgenda.findIndex(agenda => agenda.idAgenda == idAgenda);
+function buscarPorIdAgenda(id) {
+    let agenda = agendaRepository.buscarPorIdAgenda(id);
+    if (agenda) {
+        return agenda;
+    } else {
+        throw { id: 404, msg: "Agenda não encontrada"}
+    }
+}
 
-    if (indiceAgenda == -1) {
-        return { id: 404, msg: "Agendamento não encontrado" };
+
+function atualizarAgenda(id, agenda) {
+    if(agenda && agenda.id && agenda.data && agenda.pacienteNome) {
+        const agendaAtualizada = agendaRepository.atualizarAgenda(id, agenda);
+        if(agendaAtualizada) {
+            return agendaAtualizada;
+        }        
+        else {
+            throw {id: 404, msg: "Agenda não encontrada"};
+        }
+    }
+    else {
+        throw {id: 400, msg: "Agenda sem dados corretos"};
+    }
+}
+
+function deletarAgenda(id) {
+    let agenda = agendaRepository.deletarAgenda(id);
+    if(!agenda) {
+       throw {id: 404, msg: "Agenda não encontrada"};
     }
 
-    novaAgenda.idAgenda = idAgenda;
-    listaAgenda[indiceAgenda] = novaAgenda;
+    const paciente = listaPaciente.find(p => p.nome === agenda.pacienteNome);
+    if (paciente) {
+        if (typeof paciente.consultaMarcada !== 'boolean') {
+            throw { id: 400, msg: "Dados do paciente inválidos: consultaMarcada deve ser booleano" };
+        }
+        paciente.consultaMarcada = false;
+    } else {
+        throw { id: 404, msg: "Paciente não encontrado" };
+    }
 
-    let indicePaciente = listaPaciente.findIndex(paciente => paciente.idPaciente == idPaciente);
-
-    if (indicePaciente == -1) {
-        return { id: 404, msg: "Paciente não encontrado" }; }
-
-    novoPaciente.idPaciente = idPaciente;
-    listaPaciente[indicePaciente] = novoPaciente;
-    return novoPaciente;
-}
-
-
-// delete
-// deleta a consulta e limpa o campo de consulta do paciente tambem
-function deletarAgenda(idAgenda, idPaciente) {
-    let indiceAgenda = listaAgenda.findIndex(agenda => agenda.idAgenda == idAgenda);
-    
-    if (indiceAgenda == -1) {
-        return { id: 404, msg: "Agendamento não encontrado" }; }
-
-    const agendaRemovida = listaAgenda.splice(indiceAgenda, 1)[0];
-
-    let indicePaciente = listaPaciente.findIndex(paciente => paciente.idPaciente == idPaciente);
-
-    if (indicePaciente == -1) {
-        return { id: 404, msg: "Paciente não encontrado" }; }
-
-    paciente.consulta_marcada = false;
-
-    return {
-        agendaRemovida: agendaRemovida,
-        pacienteAtualizado: paciente
-    };
-
-}
-
-// funcionalidade especifica 
-function agendarConsulta(agenda, data) {
-    if(!agenda || !agenda.data || !agenda.paciente) {
-        return; }
-    let indiceAgenda = listaAgenda.findIndex(function(agenda) {
-        return (agenda.idAgenda == idAgenda); })
-
-    if (indiceAgenda == -1) return;
-    agenda.idAgenda = idAgenda;
-    listaAgenda[indiceAgenda] = agenda;
     return agenda;
 }
+
+
+
 
 module.exports = {
     listarAgenda,

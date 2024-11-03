@@ -10,7 +10,7 @@ function listarAgenda() {
 // ver se o horario está ocupado e retornar msg se estiver
 function inserirAgenda(agenda) {
     if(!agenda || !agenda.id || !agenda.data || !agenda.pacienteNome) {
-        return;
+        throw {id: 400, msg: "Agenda sem dados corretos"};
     }
 
     agenda.id = idGeradorAgenda++;
@@ -21,19 +21,22 @@ function inserirAgenda(agenda) {
 // get id
 function buscarPorIdAgenda(id) {
     const agendaEncontrada = listaAgenda.find(a => a.id === id);
+    if (!agendaEncontrada) {
+        throw { id: 404, msg: "Agendamento não encontrado" };
+    }
+
     return agendaEncontrada;
 }
 
 // put
 function atualizarAgenda(id, novaAgenda) {
     if(!agenda || !agenda.id || !agenda.data || !agenda.pacienteNome) {
-        return;
-    }
+        throw {id: 400, msg: "Agenda sem dados corretos"}; }
 
     let indiceAgenda = listaAgenda.findIndex(agenda => agenda.id == id);
 
     if (indiceAgenda == -1) {
-        return;
+        throw { id: 404, msg: "Agendamento não encontrado" };
     }
 
     novaAgenda.id = id;
@@ -49,10 +52,10 @@ function deletarAgenda(id) {
     let indiceAgenda = listaAgenda.findIndex(agenda => agenda.id == id);
     
     if (indiceAgenda == -1) {
-        return;
-    }
+        throw { id: 404, msg: "Agendamento não encontrado" }; }
 
     const agendaRemovida = listaAgenda.splice(indiceAgenda, 1)[0];
+
     return agendaRemovida;
 
 }

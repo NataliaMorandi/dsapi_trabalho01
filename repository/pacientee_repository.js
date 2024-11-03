@@ -9,7 +9,7 @@ function listarPaciente() {
 // post
 function inserirPaciente(paciente) {
     if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
-        return;
+        throw {id: 400, msg: "Paciente sem dados corretos"};
     }
     paciente.id = idGeradorPaciente++;
     listaPaciente.push(paciente);
@@ -19,6 +19,10 @@ function inserirPaciente(paciente) {
 // get id
 function buscarPorIdPaciente(paciente) {
     const pacienteEncontrado = listaPaciente.find(p => p.id === paciente.id);
+    if (!pacienteEncontrado) {
+        throw { id: 404, msg: "Paciente não encontrado" };
+    }
+    
     return pacienteEncontrado;
 }
 
@@ -29,7 +33,7 @@ function atualizarPaciente(id, paciente) {
     let indicePaciente = listaPaciente.findIndex(p => p.id === id);
 
     if (indicePaciente === -1) {
-        return;
+        throw { id: 404, msg: "Paciente não encontrado" };
     }
     paciente.id = id;
     listaPaciente[indicePaciente] = paciente;
@@ -41,7 +45,7 @@ function deletarPaciente(id) {
     let indicePaciente = listaPaciente.findIndex(p => p.id === id);
 
     if (indicePaciente === -1) {
-        return;
+        throw { id: 404, msg: "Paciente não encontrado" };
     }
 
     const pacienteRemovido = listaPaciente.splice(indicePaciente, 1)[0];

@@ -1,10 +1,8 @@
 agenda_repository falta:
-    - atualizarAgenda
-    - deletarAgenda
-    - funcionalidade especifica 
+
 
 paciente_repositoy falta:
-    - funcionalidade especifica 
+
 
 agenda_service
 
