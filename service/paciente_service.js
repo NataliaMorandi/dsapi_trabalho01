@@ -2,8 +2,9 @@
 // nao pode ter overbooking
 // nao pode criar consulta em agenda sem ter um paciente
 
-const agendaRepository = require('../repository/agenda_repository')
 const pacienteRepository = require('../repository/paciente_repository')
+const agendaRepository = require('../repository/agenda_repository')
+
 
 function listarPaciente() {
     const agendas = agendaRepository.listarAgenda();
@@ -11,93 +12,124 @@ function listarPaciente() {
 
     return pacientes.map (paciente => {
         const consulta = agendas.find(consulta =>consulta.pacienteNome === paciente.nome);
-
-        if (!consulta) {
+        if (consulta) {
+            return {
+                id: paciente.id,
+                nome: paciente.nome,
+                consultaMarcada: paciente.consultaMarcada,
+                consulta: {
+                    id: consulta.id,
+                    data: consulta.data
+                }
+            };
+        } else {
             throw { id: 404, msg: "Paciente não tem consulta marcada" };
         }
-
-        return {
-            id: paciente.id,
-            nome: paciente.nome,
-            consultaMarcada: paciente.consultaMarcada,
-            consulta: {
-                id: consulta.id,
-                data: consulta.data
-            }
-        };
-    });
+    }); 
 }
 
 function inserirPaciente(paciente) {
-    if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
+    if(paciente && paciente.id && paciente.nome && typeof paciente.consultaMarcada === 'boolean') {
+        return pacienteRepository.inserirPaciente(paciente);
+    } else {
         throw { id: 400, msg: "Paciente sem dados corretos"}
     }
-
-    return pacienteRepository.inserirPaciente(paciente);
 }
 
-function inserirPaciente(paciente) {
-    if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
-        return;
+function buscarPorIdPaciente(id) {
+    const agendas = agendaRepository.listarAgenda();
+    const pacientes = pacienteRepository.listarPaciente();
+    // let paciente = pacienteRepository.buscarPorIdPaciente(id);
+    //return pacientes.map (paciente => {
+    const paciente = pacientes.find(p => p.id === id);
+    if (!paciente) {
+        throw { id: 404, msg: "Paciente não encontrado"}
     }
-    paciente.id = idGeradorPaciente++;
-    listaPaciente.push(paciente);
-    return paciente;
-}
-
-
-function buscarPorIdAgenda(id) {
-    let agenda = agendaRepository.buscarPorIdAgenda(id);
-    if (agenda) {
-        return agenda;
-    } else {
-        throw { id: 404, msg: "Agenda não encontrada"}
+    if (paciente.consultaMarcada) {
+        const consulta = agendas.find(a =>a.pacienteNome === paciente.nome);
+        if (consulta) {
+            return {
+                id: paciente.id,
+                nome: paciente.nome,
+                consultaMarcada: paciente.consultaMarcada,
+                consulta: {
+                    id: consulta.id,
+                    data: consulta.data
+                }
+            };
+        } else {
+            throw { id: 404, msg: "Paciente sem consulta marcada"}
+        }
     }
+    return {
+        id: paciente.id,
+        nome: paciente.nome,
+        consultaMarcada: paciente.consultaMarcada,
+    };
 }
 
 
-function atualizarAgenda(id, agenda) {
-    if(agenda && agenda.id && agenda.data && agenda.pacienteNome) {
-        const agendaAtualizada = agendaRepository.atualizarAgenda(id, agenda);
-        if(agendaAtualizada) {
-            return agendaAtualizada;
+function atualizarPaciente(id, paciente) {
+    if(paciente && paciente.id && paciente.nome && typeof paciente.consultaMarcada === 'boolean') {
+        const pacienteAtualizado = pacienteRepository.atualizarPaciente(id, paciente);
+        if(pacienteAtualizado) {
+            return pacienteAtualizado;
         }        
         else {
-            throw {id: 404, msg: "Agenda não encontrada"};
+            throw {id: 404, msg: "Paciente não encontrado"};
         }
     }
     else {
-        throw {id: 400, msg: "Agenda sem dados corretos"};
+        throw {id: 400, msg: "Paciente sem dados corretos"};
     }
 }
 
-function deletarAgenda(id) {
-    let agenda = agendaRepository.deletarAgenda(id);
-    if(!agenda) {
-       throw {id: 404, msg: "Agenda não encontrada"};
+function atualizarPaciente(id, paciente) {
+    if (!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
+        throw { id: 400, msg: "Paciente sem dados corretos" };
     }
 
-    const paciente = listaPaciente.find(p => p.nome === agenda.pacienteNome);
-    if (paciente) {
-        if (typeof paciente.consultaMarcada !== 'boolean') {
-            throw { id: 400, msg: "Dados do paciente inválidos: consultaMarcada deve ser booleano" };
-        }
-        paciente.consultaMarcada = false;
+    const pacienteAtualizado = pacienteRepository.atualizarPaciente(id, paciente);
+    
+    if (pacienteAtualizado) {
+        return pacienteAtualizado;
     } else {
         throw { id: 404, msg: "Paciente não encontrado" };
     }
+}
 
-    return agenda;
+// procurar id do paciente, se consultaMarcada for true, vou em agenda, busco pelo nome do paciente e deleto a consulta marcada
+function deletarPaciente(id) {
+    const agendas = agendaRepository.listarAgenda();
+    const pacientes = pacienteRepository.listarPaciente();
+
+    const paciente = pacientes.find(p => p.id === id);
+    if (!paciente) {
+        throw { id: 404, msg: "Paciente não encontrado"}
+    }
+
+    if (paciente.consultaMarcada) {
+        const consulta = agendas.find(a =>a.pacienteNome === paciente.nome);
+
+        if(consulta) {
+            agendaRepository.deletarAgenda(id);
+        }
+
+        const pacienteRemovido = pacienteRepository.deletarPaciente(id);
+        if(pacienteRemovido) {
+            return pacienteRemovido;
+        } else {
+            throw { id: 500, msg: "Erro ao deletar paciente"} //500 internal server error: falha ao deletar paciente embora tenha sido encontrado
+        }
+    }
 }
 
 
-
-
 module.exports = {
-    listarAgenda,
-    inserirAgenda,
-    buscarPorIdAgenda,
-    atualizarAgenda,
-    deletarAgenda
+    listarPaciente,
+    inserirPaciente,
+    buscarPorIdPaciente,
+    atualizarPaciente,
+    deletarPaciente
     // ,funcionalidade especifica 
 }
