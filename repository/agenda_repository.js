@@ -26,7 +26,7 @@ function buscarPorIdAgenda(id) {
 
 // put
 function atualizarAgenda(id, novaAgenda) {
-    if(!agenda || !agenda.id || !agenda.data || !agenda.pacienteNome) {
+    if(!novaAgenda || !novaAgenda.data || !novaAgenda.pacienteNome) {
         return;
     }
 
@@ -38,8 +38,7 @@ function atualizarAgenda(id, novaAgenda) {
 
     novaAgenda.id = id;
     listaAgenda[indiceAgenda] = novaAgenda;
-    return agenda;
-
+    return listaAgenda[indiceAgenda];
 }
 
 
@@ -47,14 +46,13 @@ function atualizarAgenda(id, novaAgenda) {
 // deleta a consulta e limpa o campo de consulta do paciente tambem
 function deletarAgenda(id) {
     let indiceAgenda = listaAgenda.findIndex(agenda => agenda.id == id);
-    
+
     if (indiceAgenda == -1) {
         return;
     }
 
     const agendaRemovida = listaAgenda.splice(indiceAgenda, 1)[0];
     return agendaRemovida;
-
 }
 
 module.exports = {
@@ -63,5 +61,4 @@ module.exports = {
     buscarPorIdAgenda,
     atualizarAgenda,
     deletarAgenda
-    // ,funcionalidade especifica 
 }

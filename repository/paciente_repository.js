@@ -23,17 +23,19 @@ function buscarPorIdPaciente(paciente) {
 }
 
 // put
-function atualizarPaciente(id, paciente) {
-    if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
-        return; }
+function atualizarPaciente(id, novoPaciente) {
+    if(!novoPaciente || !novoPaciente.nome || typeof novoPaciente.consultaMarcada !== 'boolean') {
+        return; 
+    }
     let indicePaciente = listaPaciente.findIndex(p => p.id === id);
 
     if (indicePaciente === -1) {
         return;
     }
-    paciente.id = id;
-    listaPaciente[indicePaciente] = paciente;
-    return paciente;
+
+    novoPaciente.id = id;
+    listaPaciente[indicePaciente] = novoPaciente;
+    return listaPaciente[indicePaciente];
 }
 
 // delete
@@ -45,11 +47,10 @@ function deletarPaciente(id) {
     }
 
     const pacienteRemovido = listaPaciente.splice(indicePaciente, 1)[0];
+    return pacienteRemovido;
 
-    const pacienteNome = pacienteRemovido.nome;
-
+    // const pacienteNome = pacienteRemovido.nome;
     //listaAgenda = listaAgenda.filter(consulta => consulta.paciente !== pacienteNome);
-
     //throw { id: 200, msg: "Paciente e suas consultas foram removidos" };
 }
 
@@ -59,5 +60,4 @@ module.exports = {
     buscarPorIdPaciente,
     atualizarPaciente,
     deletarPaciente
-    // ,funcionalidade especifica 
 }
