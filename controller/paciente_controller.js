@@ -1,4 +1,4 @@
-const pacienteService = require('../repository/paciente_service')
+const pacienteService = require('../service/paciente_service');
 
 // listar - get
 function listarPaciente(req, res) {

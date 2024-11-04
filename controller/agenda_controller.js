@@ -1,4 +1,4 @@
-const agendaService = require('../repository/agenda_service')
+const agendaService = require('../service/agenda_service');
 
 // listar - get
 function listarAgenda(req, res) {
@@ -60,9 +60,10 @@ function deletarAgenda(req, res) {
 
 // pesquisar - get
 function pesquisarPorDataAgenda(req, res) {
-    const data = req.body;
+    const body = req.body;
+    console.log(body)
     try {
-        res.json(agendaService.pesquisarPorDataAgenda(data));
+        res.json(agendaService.pesquisarPorDataAgenda(body.data));
       } catch(err) {
         res.status(err.id).json(err)
       }

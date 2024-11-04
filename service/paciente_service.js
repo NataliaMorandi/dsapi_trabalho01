@@ -2,8 +2,8 @@
 // nao pode ter overbooking
 // nao pode criar consulta em agenda sem ter um paciente
 
-const pacienteRepository = require('../repository/paciente_repository')
-const agendaRepository = require('../repository/agenda_repository')
+const pacienteRepository = require('../repository/paciente_repository');
+const agendaRepository = require('../repository/agenda_repository');
 
 
 function listarPaciente() {

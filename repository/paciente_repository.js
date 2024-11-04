@@ -8,7 +8,7 @@ function listarPaciente() {
 
 // post
 function inserirPaciente(paciente) {
-    if(!paciente || !paciente.id || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
+    if(!paciente || !paciente.nome || typeof paciente.consultaMarcada !== 'boolean') {
         return;
     }
     paciente.id = idGeradorPaciente++;

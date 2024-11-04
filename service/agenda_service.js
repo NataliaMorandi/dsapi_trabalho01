@@ -2,8 +2,8 @@
 // nao pode ter overbooking
 // nao pode criar consulta em agenda sem ter um paciente
 
-const agendaRepository = require('../repository/agenda_repository')
-const pacienteRepository = require('../repository/paciente_repository')
+const agendaRepository = require('../repository/agenda_repository');
+const pacienteRepository = require('../repository/paciente_repository');
 
 
 function listarAgenda() {
@@ -93,17 +93,18 @@ function buscarPorIdAgenda(id) {
 
     const listaPaciente = pacienteRepository.listarPaciente();
 
-    const paciente = listaPaciente.find(p => p.nome === consulta.pacienteNome);
-    
+    const paciente = listaPaciente.find(p => p.nome === agenda.pacienteNome);
+
     if(paciente) {
         agenda.paciente = {
             id: paciente.id,
             nome: paciente.nome,
             consultaMarcada: paciente.consultaMarcada     
         };
-    } else {
-        throw { id: 404, msg: "Paciente não encontrado para a agenda"}
     }
+    // else {
+    //     throw { id: 404, msg: "Paciente não encontrado para a agenda"}
+    // }
     return agenda;
 }
 
