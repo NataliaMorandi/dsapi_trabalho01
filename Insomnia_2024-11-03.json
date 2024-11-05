@@ -12,7 +12,7 @@
             "url": "http://localhost:3000/api/pacientes",
             "name": "listarPaciente",
             "description": "",
-            "method": "GET",
+            "method":  "GET",
             "body": {},
             "parameters": [],
             "headers": [

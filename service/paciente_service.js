@@ -10,7 +10,7 @@ function listarPaciente() {
     const listaAgenda = agendaRepository.listarAgenda();
     const listaPaciente = pacienteRepository.listarPaciente();
 
-    const pacientes = listaPaciente.map (paciente => {
+    const pacientes = listaPaciente.map  (paciente => {
         let tempPaciente = paciente;
 
         const consulta = listaAgenda.find(consulta => consulta.pacienteNome === paciente.nome);
