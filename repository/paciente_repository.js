@@ -48,10 +48,6 @@ function deletarPaciente(id) {
 
     const pacienteRemovido = listaPaciente.splice(indicePaciente, 1)[0];
     return pacienteRemovido;
-
-    // const pacienteNome = pacienteRemovido.nome;
-    //listaAgenda = listaAgenda.filter(consulta => consulta.paciente !== pacienteNome);
-    //throw { id: 200, msg: "Paciente e suas consultas foram removidos" };
 }
 
 module.exports = {

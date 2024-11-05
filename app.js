@@ -1,4 +1,4 @@
-const express = require('express') //disponibiliza esse serviço. express é uma biblioteca
+const express = require('express') 
 const pacienteRouter = require('./router/paciente_router')
 const agendaRouter = require('./router/agenda_router')
 

@@ -2,7 +2,6 @@ const agendaService = require('../service/agenda_service');
 
 // listar - get
 function listarAgenda(req, res) {
-    //res.json(agendaService.listarAgenda())
     try {
         res.json(agendaService.listarAgenda());
       } catch(err) {
@@ -26,7 +25,6 @@ function inserirAgenda(req, res) {
 
 // buscar - get
 function buscarPorIdAgenda(req, res) {
-    // O + antes converte o valor para number (na URL vem como string)
     const id = +req.params.id;
     try {
       res.json(agendaService.buscarPorIdAgenda(id));

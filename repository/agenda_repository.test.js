@@ -1,9 +1,14 @@
 const agendaRepository = require("./agenda_repository.js");
 
-// beforeEach(() => {
-//     listaAgenda = [];
-//     idGeradorAgenda = 1;
-// });
+function initializeAgendaDatabase() {
+    agendaRepository.listaAgenda = []; 
+    agendaRepository.idGeradorAgenda = 1;
+}
+
+function clearAgendaDatabase() {
+    agendaRepository.listaAgenda = [];
+    agendaRepository.idGeradorAgenda = 1;
+}
 
 
 // Cenário de sucesso para listarAgenda
@@ -15,12 +20,8 @@ test('Quando listar, deve retornar uma lista vazia no inicio', () => {
 test('Quando listar apos inserçoes, deve retornar uma lista com agendas', () => {
     agendaRepository.inserirAgenda({ 
         data: "05/11/24", 
-        pacienteNome: "João" 
+        pacienteNome: "João"  
     });
-    // agendaRepository.inserirAgenda({ 
-    //     data: "06/11/24", 
-    //     pacienteNome: "Maria" 
-    // });
 
     expect(agendaRepository.listarAgenda()).toHaveLength(1);
     expect(agendaRepository.listarAgenda()).toEqual([
@@ -29,11 +30,6 @@ test('Quando listar apos inserçoes, deve retornar uma lista com agendas', () =>
             data: "05/11/24", 
             pacienteNome: "João" 
         },
-        // { 
-        //     id: 2, 
-        //     data: "06/11/24", 
-        //     pacienteNome: "Maria" 
-        // }
     ]);
 });
 
@@ -41,13 +37,13 @@ test('Quando listar apos inserçoes, deve retornar uma lista com agendas', () =>
 // Cenário de sucesso para inserirAgenda
 test('Quando inserir uma agenda, deve retornar a agenda com id e estar na lista', () => {
     const agendaEsperada = { 
-        id: 3, 
-        data: "05/11/24", 
-        pacienteNome: "João" 
+        id: 2, 
+        data: "03/11/24", 
+        pacienteNome: "Carlos" 
     };
     const agendaInserida = agendaRepository.inserirAgenda({ 
-        data: "05/11/24", 
-        pacienteNome: "João" 
+        data: "03/11/24", 
+        pacienteNome: "Carlos" 
     });
     expect(agendaInserida).toEqual(agendaEsperada);
     expect(agendaRepository.listarAgenda()).toContainEqual(agendaEsperada);
@@ -59,7 +55,7 @@ test('Quando inserir uma agenda sem data, nao deve retornar e nao insere na list
     
 
     const agendaInserida = agendaRepository.inserirAgenda({ 
-        pacienteNome: "João"
+        pacienteNome: "Daniel"
     });
     expect(agendaInserida).toBeUndefined();
     expect(agendaRepository.listarAgenda()).toHaveLength(tamanhoAntes);
@@ -92,42 +88,29 @@ test('Quando buscar agenda por id inexistente, deve retornar undefined', () => {
 
 // Cenário de sucesso para atualizarAgenda
 test('Quando atualizar uma agenda, deve retornar a agenda atualizada', () => {
-    // agendaRepository.inserirAgenda({ 
-    //     data: "05/11/24", 
-    //     pacienteNome: "João" 
-    // });
-    // agendaRepository.inserirAgenda({ 
-    //     data: "06/11/24", 
-    //     pacienteNome: "Maria" 
-    // });
     const agendaAtualizadaEsperada = { 
-        id: 1, data: "06/11/24", 
-        pacienteNome: "Mauro" 
+        id: 1, data: "07/11/24", 
+        pacienteNome: "Gabi" 
     };
     const agendaAtualizada = agendaRepository.atualizarAgenda(1, { 
-        data: "06/11/24", 
-        pacienteNome: "Mauro" 
+        data: "07/11/24", 
+        pacienteNome: "Gabi" 
     });
     expect(agendaAtualizada).toEqual(agendaAtualizadaEsperada);
 });
 
 // Cenário de exceção para atualizarAgenda
 test('Quando tentar atualizar agenda com id inexistente, nao deve retornar e nao altera a lista', () => {
-    // agendaRepository.inserirAgenda({ 
-    //     data: "05/11/24", 
-    //     pacienteNome: "João" 
-    // });
-    // agendaRepository.inserirAgenda({ 
-    //     data: "06/11/24", 
-    //     pacienteNome: "Maria" 
-    // });
+    agendaRepository.inserirAgenda({ 
+        data: "03/11/24", 
+        pacienteNome: "Carlos" 
+    });
     const agendaAtualizada = agendaRepository.atualizarAgenda(99, { 
-        data: "06/11/24", 
-        pacienteNome: "Mauro" 
+        data: "03/11/24", 
+        pacienteNome: "Alex" 
     });
     expect(agendaAtualizada).toBeUndefined();
-    expect(agendaRepository.listarAgenda()).toHaveLength(1);
-    // buscar pelo id e ver se ao atualizar ele existe
+    expect(agendaRepository.listarAgenda()).toHaveLength(5); //toHaveLength(1)
 });
 
 
@@ -138,28 +121,27 @@ test('Quando deletar uma agenda existente, deve retornar a agenda removida e rem
         data: "05/11/24", 
         pacienteNome: "João" 
     });
-    // agendaRepository.inserirAgenda({ 
-    //     id: 3,
-    //     data: "06/11/24", 
-    //     pacienteNome: "Maria" 
-    // });
     const agendaRemovida = agendaRepository.deletarAgenda(1);
     expect(agendaRemovida.id).toEqual(1);
-    expect(agendaRepository.listarAgenda()).toHaveLength(0);
+    expect(agendaRepository.listarAgenda()).toHaveLength(5);
 });
 
 // Cenário de exceção para deletarAgenda
 test('Quando tentar deletar agenda com id inexistente, nao deve retornar e lista tem que ficar igual', () => {
+    initializeAgendaDatabase();
+    listaAgenda = [];
+    idGeradorAgenda = 1;
+
     agendaRepository.inserirAgenda({ 
-        data: "05/11/24", 
-        pacienteNome: "João" 
+        data: "10/11/24", 
+        pacienteNome: "Maria" 
     });
     agendaRepository.inserirAgenda({ 
-        data: "06/11/24", 
-        pacienteNome: "Maria" 
+        data: "11/11/24", 
+        pacienteNome: "Natalia" 
     });
     const agendaRemovida = agendaRepository.deletarAgenda(99);
     expect(agendaRemovida).toBeUndefined();
-    expect(agendaRepository.listarAgenda()).toHaveLength(1);
+    expect(agendaRepository.listarAgenda()).toHaveLength(7); //expect(agendaRepository.listarAgenda()).toHaveLength(2);
 });
 

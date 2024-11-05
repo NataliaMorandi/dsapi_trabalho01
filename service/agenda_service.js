@@ -25,27 +25,6 @@ function listarAgenda() {
         throw { id: 404, msg: "Nenhuma agenda registrada" };
     }
 }
-    // return listaAgenda.map (consulta => {
-    //     const paciente = listaPaciente.find(p => p.nome === consulta.pacienteNome);
-    //     // let pacienteNome;
-    //     if (paciente) {
-    //         // pacienteNome = paciente.nome;
-    //         return {
-    //             id: consulta.id,
-    //             data: consulta.data,
-    //             paciente: paciente
-    //         };
-    //     } else {
-    //         throw { id: 404, msg: "Paciente não encontrado" };
-        // }
-
-        // return {
-        //     id: consulta.id,
-        //     data: consulta.data,
-        //     pacienteNome: pacienteNome
-        // };
-    // });
-// }
 
 
 function inserirAgenda(agenda) {
@@ -56,7 +35,6 @@ function inserirAgenda(agenda) {
     const listaAgenda = agendaRepository.listarAgenda();
     const listaPaciente = pacienteRepository.listarPaciente();
 
-    // se eu vou inserir agenda, deveria adicionar aqui a minha regra de negocio sobre confirmar se data está disponivel
     const dataOcupada = listaAgenda.some(
         consulta => consulta.data === agenda.data 
     );
@@ -67,11 +45,6 @@ function inserirAgenda(agenda) {
 
     const paciente = listaPaciente.find(p => p.nome === agenda.pacienteNome);
     if (paciente) {
-        // if (typeof paciente.consultaMarcada !== 'boolean') {
-        //     throw { id: 400, msg: "Dados do paciente inválidos: consultaMarcada deve ser booleano" };
-        // }
-
-        // chamar método para atualizar paciente
         paciente.consultaMarcada = true;
         pacienteRepository.atualizarPaciente(paciente.id, paciente);
     } else {
@@ -83,8 +56,6 @@ function inserirAgenda(agenda) {
 
 
 function buscarPorIdAgenda(id) {
-
-    // buscar paciente e colocar dentro da agenda que está retornando
 
     let agenda = agendaRepository.buscarPorIdAgenda(id);
     if (!agenda) {
@@ -102,9 +73,6 @@ function buscarPorIdAgenda(id) {
             consultaMarcada: paciente.consultaMarcada     
         };
     }
-    // else {
-    //     throw { id: 404, msg: "Paciente não encontrado para a agenda"}
-    // }
     return agenda;
 }
 
@@ -134,11 +102,6 @@ function deletarAgenda(id) {
     const paciente = listaPaciente.find(p => p.nome === agenda.pacienteNome);
 
     if (paciente) {
-        // if (typeof paciente.consultaMarcada !== 'boolean') {
-        //     throw { id: 400, msg: "Dados do paciente inválidos: consultaMarcada deve ser booleano" };
-        // }
-
-        // chamar método para atualizar paciente
         paciente.consultaMarcada = false;
         const pacienteAtualizado = pacienteRepository.atualizarPaciente(paciente.id, paciente);
 

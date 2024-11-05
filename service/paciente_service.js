@@ -30,23 +30,6 @@ function listarPaciente() {
         throw { id: 404, msg: "Nenhum paciente registrado" };
     }
 }
-//     return listaPaciente.map (paciente => {
-//         const consulta = listaAgenda.find(consulta => consulta.pacienteNome === paciente.nome);
-//         if (consulta) {
-//             return {
-//                 id: paciente.id,
-//                 nome: paciente.nome,
-//                 consultaMarcada: paciente.consultaMarcada,
-//                 consulta: {
-//                     id: consulta.id,
-//                     data: consulta.data
-//                 }
-//             };
-//         } else {
-//             throw { id: 404, msg: "Paciente não tem consulta marcada" };
-//         }
-//     }); 
-// }
 
 
 function inserirPaciente(paciente) {
@@ -70,9 +53,6 @@ function inserirPaciente(paciente) {
 function buscarPorIdPaciente(id) {
     const agendas = agendaRepository.listarAgenda();
     const pacientes = pacienteRepository.listarPaciente();
-
-    // let paciente = pacienteRepository.buscarPorIdPaciente(id);
-    // return pacientes.map (paciente => {
 
     const paciente = pacientes.find(p => p.id === id);
     if (!paciente) {
@@ -105,7 +85,6 @@ function atualizarPaciente(id, paciente) {
 }
 
 
-// procurar id do paciente, se consultaMarcada for true, vou em agenda, busco pelo nome do paciente e deleto a consulta marcada
 function deletarPaciente(id) {
     const paciente = pacienteRepository.deletarPaciente(id);
     if (!paciente) {
@@ -121,13 +100,6 @@ function deletarPaciente(id) {
         } else {
             throw { id: 404, msg: "Agenda não encontrada" };
         }
-
-        // const pacienteRemovido = pacienteRepository.deletarPaciente(id);
-        // if(pacienteRemovido) {
-        //     return pacienteRemovido;
-        // } else {
-        //     throw { id: 500, msg: "Erro ao deletar paciente"} //500 internal server error: falha ao deletar paciente embora tenha sido encontrado
-        // }
     }
 
     return paciente;
@@ -140,5 +112,5 @@ module.exports = {
     buscarPorIdPaciente,
     atualizarPaciente,
     deletarPaciente
-    // ,funcionalidade especifica 
+
 }
